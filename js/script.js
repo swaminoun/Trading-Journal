@@ -113,10 +113,98 @@ function loadTrades() {
     });
 }
 
+const GOOGLE_CLIENT_ID = '35954821232-gshj89ir8i795pjojkkgc59g17qdgaf1.apps.googleusercontent.com';
+const GOOGLE_INIT_RETRY_LIMIT = 25;
+
+let googleInitialized = false;
+let googleInitAttempts = 0;
 let currentUser = null;
 
-function goToAuth() {
-    window.location.href = 'auth.html';
+function goToAuth(mode = 'login') {
+    const authMode = mode === 'signup' ? 'signup' : 'login';
+    window.location.href = authMode === 'signup' ? 'auth.html?mode=signup' : 'auth.html';
+}
+
+function getUsers() {
+    return JSON.parse(localStorage.getItem('users') || '{}');
+}
+
+function saveUsers(users) {
+    localStorage.setItem('users', JSON.stringify(users));
+}
+
+function updateCurrentUserDisplay(displayName) {
+    const currentUserElement = document.getElementById('currentUser');
+    if (currentUserElement) {
+        currentUserElement.textContent = 'Logged in as ' + displayName;
+    }
+}
+
+function finalizeAuth(userKey, displayName, provider) {
+    currentUser = userKey;
+    localStorage.setItem('currentUser', currentUser);
+    if (provider) {
+        localStorage.setItem('currentAuthProvider', provider);
+    } else {
+        localStorage.removeItem('currentAuthProvider');
+    }
+
+    if (window.location.pathname.endsWith('auth.html')) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    safeStyleToggle('auth', 'none');
+    safeStyleToggle('loginForm', 'none');
+    safeStyleToggle('signupForm', 'none');
+    safeStyleToggle('userInfo', 'block');
+    updateCurrentUserDisplay(displayName);
+    loadTrades();
+}
+
+function setAuthMode(mode) {
+    const authMode = mode === 'signup' ? 'signup' : 'login';
+    safeStyleToggle('loginForm', authMode === 'signup' ? 'none' : 'block');
+    safeStyleToggle('signupForm', authMode === 'signup' ? 'block' : 'none');
+
+    const loginToggle = document.getElementById('loginToggle');
+    const signupToggle = document.getElementById('signupToggle');
+    if (loginToggle) {
+        loginToggle.classList.toggle('is-active', authMode === 'login');
+        loginToggle.setAttribute('aria-pressed', String(authMode === 'login'));
+    }
+    if (signupToggle) {
+        signupToggle.classList.toggle('is-active', authMode === 'signup');
+        signupToggle.setAttribute('aria-pressed', String(authMode === 'signup'));
+    }
+
+    const heading = document.getElementById('authHeading');
+    const subheading = document.getElementById('authSubheading');
+    if (heading) {
+        heading.textContent = authMode === 'signup' ? 'Create your account' : 'Welcome back';
+    }
+    if (subheading) {
+        subheading.textContent = authMode === 'signup'
+            ? 'Sign up with a username and password, or use Google to create an account instantly.'
+            : 'Log in with your saved username and password, or continue with Google.';
+    }
+
+    if (window.location.pathname.endsWith('auth.html')) {
+        const url = new URL(window.location.href);
+        if (authMode === 'signup') {
+            url.searchParams.set('mode', 'signup');
+        } else {
+            url.searchParams.delete('mode');
+        }
+        window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+    }
+}
+
+function setGoogleSigninNote(message) {
+    const note = document.getElementById('googleSigninNote');
+    if (note) {
+        note.textContent = message;
+    }
 }
 
 function safeStyleToggle(id, displayValue) {
@@ -127,25 +215,19 @@ function safeStyleToggle(id, displayValue) {
 }
 
 function showLogin() {
-    safeStyleToggle('auth', 'none');
-    safeStyleToggle('loginForm', 'block');
-    safeStyleToggle('signupForm', 'none');
+    setAuthMode('login');
 }
 
 function hideLogin() {
-    safeStyleToggle('auth', 'flex');
-    safeStyleToggle('loginForm', 'none');
+    setAuthMode('login');
 }
 
 function showSignup() {
-    safeStyleToggle('auth', 'none');
-    safeStyleToggle('signupForm', 'block');
-    safeStyleToggle('loginForm', 'none');
+    setAuthMode('signup');
 }
 
 function hideSignup() {
-    safeStyleToggle('auth', 'flex');
-    safeStyleToggle('signupForm', 'none');
+    setAuthMode('login');
 }
 
 function signup() {
@@ -159,13 +241,17 @@ function signup() {
         alert('Password must be at least 4 characters.');
         return;
     }
-    const users = JSON.parse(localStorage.getItem('users') || '{}');
+    const users = getUsers();
     if (users[user]) {
+        if (users[user].google && !users[user].password) {
+            alert('This account already uses Google. Please continue with Google to sign in.');
+            return;
+        }
         alert('User already exists. Try a different username.');
         return;
     }
     users[user] = { password: pass, trades: [] };
-    localStorage.setItem('users', JSON.stringify(users));
+    saveUsers(users);
     alert('Account created! Please login with your credentials.');
     document.getElementById('signupUser').value = '';
     document.getElementById('signupPass').value = '';
@@ -179,24 +265,15 @@ function login() {
         alert('Please enter username and password.');
         return;
     }
-    const users = JSON.parse(localStorage.getItem('users') || '{}');
+    const users = getUsers();
+    if (users[user] && users[user].google && !users[user].password) {
+        alert('This account uses Google sign-in. Please continue with Google.');
+        return;
+    }
     if (users[user] && users[user].password === pass) {
-        currentUser = user;
-        localStorage.setItem('currentUser', currentUser);
         document.getElementById('loginUser').value = '';
         document.getElementById('loginPass').value = '';
-        if (window.location.pathname.endsWith('auth.html')) {
-            window.location.href = 'index.html';
-            return;
-        }
-        document.getElementById('auth')?.style && (document.getElementById('auth').style.display = 'none');
-        document.getElementById('loginForm')?.style && (document.getElementById('loginForm').style.display = 'none');
-        document.getElementById('userInfo')?.style && (document.getElementById('userInfo').style.display = 'block');
-        const currentUserElement = document.getElementById('currentUser');
-        if (currentUserElement) {
-            currentUserElement.textContent = 'Logged in as ' + user;
-        }
-        loadTrades();
+        finalizeAuth(user, user, 'password');
     } else {
         alert('Invalid username or password.');
         document.getElementById('loginPass').value = '';
@@ -230,24 +307,19 @@ function handleGoogleCredentialResponse(response) {
     const payload = parseJwt(response.credential);
     const email = payload.email;
     const name = payload.name || email;
-    const users = JSON.parse(localStorage.getItem('users') || '{}');
-    if (!users[email]) {
-        users[email] = { password: null, name: name, google: true, trades: [] };
-        localStorage.setItem('users', JSON.stringify(users));
-    }
-    currentUser = email;
-    localStorage.setItem('currentUser', currentUser);
-    localStorage.setItem('currentAuthProvider', 'google');
-    if (window.location.pathname.endsWith('auth.html')) {
-        window.location.href = 'index.html';
-        return;
-    }
-    document.getElementById('currentUser').textContent = 'Logged in as ' + name;
-    document.getElementById('auth').style.display = 'none';
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('signupForm').style.display = 'none';
-    document.getElementById('userInfo').style.display = 'block';
-    loadTrades();
+    const users = getUsers();
+    const existingUser = users[email] || {};
+
+    users[email] = {
+        ...existingUser,
+        password: existingUser.password || null,
+        name: name,
+        google: true,
+        trades: existingUser.trades || []
+    };
+
+    saveUsers(users);
+    finalizeAuth(email, name, 'google');
 }
 
 function initializeGoogleSignIn() {
@@ -255,23 +327,55 @@ function initializeGoogleSignIn() {
     if (!buttonContainer) {
         return;
     }
-    if (!window.google || !google.accounts || !google.accounts.id) {
-        setTimeout(initializeGoogleSignIn, 200);
+
+    if (googleInitialized) {
         return;
     }
-    google.accounts.id.initialize({
-        client_id: '35954821232-gshj89ir8i795pjojkkgc59g17qdgaf1.apps.googleusercontent.com',
-        callback: handleGoogleCredentialResponse,
-        ux_mode: 'popup',
-    });
-    google.accounts.id.renderButton(buttonContainer, {
-        type: 'standard',
-        theme: 'outline',
-        size: 'large',
-        text: 'signin_with',
-        shape: 'rectangular'
-    });
-    google.accounts.id.prompt();
+
+    if (!GOOGLE_CLIENT_ID) {
+        setGoogleSigninNote('Google sign-in is not configured yet. Add your Google client ID first.');
+        return;
+    }
+
+    if (!window.google || !google.accounts || !google.accounts.id) {
+        googleInitAttempts += 1;
+        if (googleInitAttempts < GOOGLE_INIT_RETRY_LIMIT) {
+            setTimeout(initializeGoogleSignIn, 200);
+            return;
+        }
+        setGoogleSigninNote('Google sign-in could not load. If this is a Vercel deployment, add this exact domain to your Google OAuth Authorized JavaScript origins.');
+        return;
+    }
+
+    try {
+        buttonContainer.innerHTML = '';
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            ux_mode: 'popup'
+        });
+        google.accounts.id.renderButton(buttonContainer, {
+            type: 'standard',
+            theme: 'outline',
+            size: 'large',
+            text: 'signin_with',
+            shape: 'rectangular'
+        });
+        googleInitialized = true;
+        setGoogleSigninNote('Use Google to log in or create your account instantly.');
+    } catch (error) {
+        setGoogleSigninNote('Google sign-in could not start. Check that this exact Vercel URL is allowed in your Google OAuth settings.');
+    }
+}
+
+function initAuthPage() {
+    if (!document.body.classList.contains('auth-page')) {
+        return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    setAuthMode(params.get('mode') === 'signup' ? 'signup' : 'login');
+    initializeGoogleSignIn();
 }
 
 function toggleDarkMode() {
@@ -311,5 +415,5 @@ function initApp() {
 window.addEventListener('DOMContentLoaded', () => {
     initDarkMode();
     initApp();
-    initializeGoogleSignIn();
+    initAuthPage();
 });

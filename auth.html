@@ -37,10 +37,22 @@
     </header>
 
     <main class="auth-window">
+        <section class="auth-intro">
+            <p class="eyebrow">Secure Access</p>
+            <h1 id="authHeading">Welcome back</h1>
+            <p id="authSubheading" class="auth-subheading">Log in to continue journaling, or switch to sign up and create a new account.</p>
+        </section>
+
+        <div class="auth-mode-switch" role="tablist" aria-label="Choose authentication mode">
+            <button id="loginToggle" class="auth-mode-btn is-active" type="button" onclick="showLogin()">Login</button>
+            <button id="signupToggle" class="auth-mode-btn" type="button" onclick="showSignup()">Sign up</button>
+        </div>
+
         <div class="google-signin-box">
+            <h2>Continue with Google</h2>
             <div id="googleSignInButton"></div>
-            <p class="oauth-text">Use your Google account to sign in without creating a new login.</p>
-            <p id="googleSigninNote" class="oauth-note">If the button does not appear, please use the site from a local server or your deployed URL.</p>
+            <p class="oauth-text">Use one Google button for both login and sign up. New Google users will get an account automatically.</p>
+            <p id="googleSigninNote" class="oauth-note">If the button does not appear, make sure this exact site URL is allowed in your Google OAuth settings.</p>
         </div>
         <section id="loginForm" class="auth-panel">
             <h3>Login</h3>
@@ -69,23 +81,5 @@
     </footer>
 
     <script src="js/script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const googleScript = document.querySelector('script[src*="accounts.google.com/gsi/client"]');
-            if (googleScript) {
-                googleScript.onload = () => {
-                    if (typeof initializeGoogleSignIn === 'function') {
-                        initializeGoogleSignIn();
-                    }
-                };
-            }
-            setTimeout(() => {
-                const note = document.getElementById('googleSigninNote');
-                if (note && (!window.google || !google.accounts || !google.accounts.id)) {
-                    note.textContent = 'Google sign-in may require a local server or a live HTTPS site to appear.';
-                }
-            }, 3000);
-        });
-    </script>
 </body>
 </html>

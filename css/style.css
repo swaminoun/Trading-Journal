@@ -257,6 +257,51 @@ body {
     padding: 0 24px;
 }
 
+.auth-intro {
+    text-align: center;
+    color: #fff;
+}
+
+.auth-intro h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.auth-subheading {
+    max-width: 620px;
+    margin: 14px auto 0;
+    color: rgba(255,255,255,0.9);
+    line-height: 1.7;
+}
+
+.auth-mode-switch {
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 6px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 999px;
+}
+
+.auth-mode-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-weight: 700;
+    background: transparent;
+    color: #fff;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+}
+
+.auth-mode-btn.is-active {
+    background: #fff;
+    color: #2b2f5d;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+}
+
 .auth-nav {
     gap: 18px;
 }
@@ -283,6 +328,12 @@ body {
     border: 1px solid rgba(63, 131, 247, 0.18);
     border-radius: 16px;
     background: rgba(255,255,255,0.92);
+}
+
+.google-signin-box h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #2b2f5d;
 }
 
 #googleSignInButton {
@@ -328,12 +379,50 @@ body {
     gap: 12px;
 }
 
-#loginForm, #signupForm input {
+#loginForm,
+#signupForm {
     width: 100%;
 }
 
-#loginForm button, #signupForm button {
-    width: calc(50% - 6px);
+#loginForm input,
+#signupForm input {
+    width: 100%;
+    padding: 12px 14px;
+    margin: 10px 0;
+    border: 1px solid #d8dfed;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+.auth-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+#loginForm button,
+#signupForm button {
+    flex: 1 1 140px;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    background: #3f83f7;
+    color: #fff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+#loginForm button.secondary,
+#signupForm button.secondary {
+    background: rgba(43,47,93,0.08);
+    color: #2b2f5d;
+}
+
+#loginForm button:hover,
+#signupForm button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(63, 131, 247, 0.18);
 }
 
 .window {
@@ -415,7 +504,8 @@ img {
 .dark-mode .hero,
 .dark-mode .feature-card,
 .dark-mode .auth-panel,
-.dark-mode .window {
+.dark-mode .window,
+.dark-mode .google-signin-box {
     background: rgba(20,20,40,0.9);
     border-color: rgba(255,255,255,0.12);
 }
@@ -455,6 +545,25 @@ img {
 }
 
 .dark-mode .hero-actions button {
+    background: #ebe8ff;
+    color: #1a1b3a;
+}
+
+.dark-mode .auth-subheading,
+.dark-mode .oauth-text,
+.dark-mode .oauth-note {
+    color: rgba(255,255,255,0.8);
+}
+
+.dark-mode .google-signin-box h2 {
+    color: #fff;
+}
+
+.dark-mode .auth-mode-switch {
+    background: rgba(255,255,255,0.08);
+}
+
+.dark-mode .auth-mode-btn.is-active {
     background: #ebe8ff;
     color: #1a1b3a;
 }

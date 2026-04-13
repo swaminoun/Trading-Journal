@@ -37,8 +37,8 @@
                 <a href="#features">Features</a>
             </nav>
             <div id="auth" class="auth-links">
-                <button class="nav-btn" onclick="goToAuth()">Login</button>
-                <button class="nav-btn accent" onclick="goToAuth()">Signup</button>
+                <button class="nav-btn" onclick="goToAuth('login')">Login</button>
+                <button class="nav-btn accent" onclick="goToAuth('signup')">Signup</button>
             </div>
             <button class="dark-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">&#9790;</button>
         </div>
@@ -51,7 +51,7 @@
             <p>Use a clean, responsive trading journal app to log every position, compare results, and improve your process.</p>
             <div class="hero-actions">
                 <button onclick="document.getElementById('journal').scrollIntoView({ behavior: 'smooth' })">Start journaling</button>
-                <button class="secondary" onclick="goToAuth()">Create account</button>
+                <button class="secondary" onclick="goToAuth('signup')">Create account</button>
             </div>
         </div>
     </section>
