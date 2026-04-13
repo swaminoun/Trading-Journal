@@ -10,6 +10,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="favicon-192.svg">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <title>TradeTrack Auth</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -36,6 +37,10 @@
     </header>
 
     <main class="auth-window">
+        <div class="google-signin-box">
+            <div id="googleSignInButton"></div>
+            <p class="oauth-text">Use your Google account to sign in without creating a new login.</p>
+        </div>
         <section id="loginForm" class="auth-panel">
             <h3>Login</h3>
             <input type="text" id="loginUser" placeholder="Username">

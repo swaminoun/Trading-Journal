@@ -275,6 +275,18 @@ body {
     text-decoration: underline;
 }
 
+.google-signin-box {
+    max-width: 360px;
+    margin: 0 auto 20px;
+    text-align: center;
+}
+
+.oauth-text {
+    margin-top: 12px;
+    color: #5e668c;
+    font-size: 0.95rem;
+}
+
 .auth-page .site-header,
 .auth-page .auth-panel {
     background: rgba(255,255,255,0.95);

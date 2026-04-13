@@ -203,10 +203,72 @@ function login() {
 
 function logout() {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('currentAuthProvider');
     currentUser = null;
     document.getElementById('auth').style.display = 'flex';
     document.getElementById('userInfo').style.display = 'none';
     document.getElementById('tradeTableBody').innerHTML = '';
+}
+
+function parseJwt(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+}
+
+function handleGoogleCredentialResponse(response) {
+    if (!response.credential) {
+        alert('Google sign-in failed.');
+        return;
+    }
+    const payload = parseJwt(response.credential);
+    const email = payload.email;
+    const name = payload.name || email;
+    const users = JSON.parse(localStorage.getItem('users') || '{}');
+    if (!users[email]) {
+        users[email] = { password: null, name: name, google: true, trades: [] };
+        localStorage.setItem('users', JSON.stringify(users));
+    }
+    currentUser = email;
+    localStorage.setItem('currentUser', currentUser);
+    localStorage.setItem('currentAuthProvider', 'google');
+    if (window.location.pathname.endsWith('auth.html')) {
+        window.location.href = 'index.html';
+        return;
+    }
+    document.getElementById('currentUser').textContent = 'Logged in as ' + name;
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('signupForm').style.display = 'none';
+    document.getElementById('userInfo').style.display = 'block';
+    loadTrades();
+}
+
+function initializeGoogleSignIn() {
+    const buttonContainer = document.getElementById('googleSignInButton');
+    if (!buttonContainer) {
+        return;
+    }
+    if (!window.google || !google.accounts || !google.accounts.id) {
+        setTimeout(initializeGoogleSignIn, 200);
+        return;
+    }
+    google.accounts.id.initialize({
+        client_id: '35954821232-gshj89ir8i795pjojkkgc59g17qdgaf1.apps.googleusercontent.com',
+        callback: handleGoogleCredentialResponse,
+        ux_mode: 'popup',
+    });
+    google.accounts.id.renderButton(buttonContainer, {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        text: 'signin_with',
+        shape: 'rectangular'
+    });
+    google.accounts.id.prompt();
 }
 
 function toggleDarkMode() {
@@ -231,9 +293,14 @@ function initApp() {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
         currentUser = savedUser;
-        document.getElementById('auth').style.display = 'none';
-        document.getElementById('userInfo').style.display = 'block';
-        document.getElementById('currentUser').textContent = 'Logged in as ' + currentUser;
+        document.getElementById('auth')?.style && (document.getElementById('auth').style.display = 'none');
+        document.getElementById('userInfo')?.style && (document.getElementById('userInfo').style.display = 'block');
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        const displayName = users[currentUser]?.name || currentUser;
+        const currentUserElement = document.getElementById('currentUser');
+        if (currentUserElement) {
+            currentUserElement.textContent = 'Logged in as ' + displayName;
+        }
         loadTrades();
     }
 }
@@ -241,4 +308,5 @@ function initApp() {
 window.addEventListener('DOMContentLoaded', () => {
     initDarkMode();
     initApp();
+    initializeGoogleSignIn();
 });
