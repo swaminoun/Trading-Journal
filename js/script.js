@@ -185,8 +185,8 @@ function setAuthMode(mode) {
     }
     if (subheading) {
         subheading.textContent = authMode === 'signup'
-            ? 'Sign up with a username and password, or use Google to create an account instantly.'
-            : 'Log in with your saved username and password, or continue with Google.';
+            ? 'Sign up with a username and password on this browser, or use Google for cross-browser access.'
+            : 'Log in with a browser-saved account, or continue with Google from any browser or device.';
     }
 
     if (window.location.pathname.endsWith('auth.html')) {
@@ -205,6 +205,13 @@ function setGoogleSigninNote(message) {
     if (note) {
         note.textContent = message;
     }
+}
+
+function getMissingLocalAccountMessage(identifier) {
+    if (identifier.includes('@')) {
+        return 'That account is not saved in this browser. If you use this app on different browsers or devices, continue with Google above.';
+    }
+    return 'That username was not found in this browser. Local username accounts do not sync between browsers yet. Use Google above for cross-browser sign-in.';
 }
 
 function safeStyleToggle(id, displayValue) {
@@ -252,7 +259,7 @@ function signup() {
     }
     users[user] = { password: pass, trades: [] };
     saveUsers(users);
-    alert('Account created! Please login with your credentials.');
+    alert('Account created on this browser. Please login here, or use Google if you want access on other browsers and devices.');
     document.getElementById('signupUser').value = '';
     document.getElementById('signupPass').value = '';
     hideSignup();
@@ -266,16 +273,20 @@ function login() {
         return;
     }
     const users = getUsers();
+    if (!users[user]) {
+        alert(getMissingLocalAccountMessage(user));
+        return;
+    }
     if (users[user] && users[user].google && !users[user].password) {
         alert('This account uses Google sign-in. Please continue with Google.');
         return;
     }
-    if (users[user] && users[user].password === pass) {
+    if (users[user].password === pass) {
         document.getElementById('loginUser').value = '';
         document.getElementById('loginPass').value = '';
         finalizeAuth(user, user, 'password');
     } else {
-        alert('Invalid username or password.');
+        alert('The password is incorrect for this browser account.');
         document.getElementById('loginPass').value = '';
     }
 }

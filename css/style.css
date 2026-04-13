@@ -311,6 +311,12 @@ body {
     color: #4f5481;
 }
 
+.auth-panel-note {
+    margin: 8px 0 16px;
+    color: #5e668c;
+    line-height: 1.6;
+}
+
 .auth-switch a {
     color: #3f83f7;
     text-decoration: none;
@@ -550,6 +556,7 @@ img {
 }
 
 .dark-mode .auth-subheading,
+.dark-mode .auth-panel-note,
 .dark-mode .oauth-text,
 .dark-mode .oauth-note {
     color: rgba(255,255,255,0.8);

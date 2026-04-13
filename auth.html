@@ -51,12 +51,13 @@
         <div class="google-signin-box">
             <h2>Continue with Google</h2>
             <div id="googleSignInButton"></div>
-            <p class="oauth-text">Use one Google button for both login and sign up. New Google users will get an account automatically.</p>
+            <p class="oauth-text">Use one Google button for both login and sign up. New Google users will get an account automatically, and Google works across browsers and devices.</p>
             <p id="googleSigninNote" class="oauth-note">If the button does not appear, make sure this exact site URL is allowed in your Google OAuth settings.</p>
         </div>
         <section id="loginForm" class="auth-panel">
-            <h3>Login</h3>
-            <input type="text" id="loginUser" placeholder="Username">
+            <h3>Local Login</h3>
+            <p class="auth-panel-note">Username and password accounts are saved in this browser only. For cross-browser access, use Google above.</p>
+            <input type="text" id="loginUser" placeholder="Username on this browser">
             <input type="password" id="loginPass" placeholder="Password">
             <div class="auth-actions">
                 <button onclick="login()">Login</button>
@@ -65,8 +66,9 @@
             <p class="auth-switch">Need an account? <a href="#" onclick="showSignup(); return false;">Create account</a></p>
         </section>
         <section id="signupForm" class="auth-panel" style="display:none;">
-            <h3>Signup</h3>
-            <input type="text" id="signupUser" placeholder="Username">
+            <h3>Local Signup</h3>
+            <p class="auth-panel-note">This creates a browser-only account. If you want to sign in from multiple browsers or devices, use Google instead.</p>
+            <input type="text" id="signupUser" placeholder="Choose a username for this browser">
             <input type="password" id="signupPass" placeholder="Password">
             <div class="auth-actions">
                 <button onclick="signup()">Signup</button>
