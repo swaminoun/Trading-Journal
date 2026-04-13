@@ -192,7 +192,10 @@ function login() {
         document.getElementById('auth')?.style && (document.getElementById('auth').style.display = 'none');
         document.getElementById('loginForm')?.style && (document.getElementById('loginForm').style.display = 'none');
         document.getElementById('userInfo')?.style && (document.getElementById('userInfo').style.display = 'block');
-        document.getElementById('currentUser')?.textContent && (document.getElementById('currentUser').textContent = 'Logged in as ' + user);
+        const currentUserElement = document.getElementById('currentUser');
+        if (currentUserElement) {
+            currentUserElement.textContent = 'Logged in as ' + user;
+        }
         loadTrades();
     } else {
         alert('Invalid username or password.');
