@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Trading Journal website to track your trades, strategies, screenshots, and notes.">
+    <meta name="theme-color" content="#667eea">
+    <title>My Trading Journal</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="brand">
+            <svg class="brand-logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="6" width="24" height="32" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M18 10 L18 30" stroke="currentColor" stroke-width="2"/>
+                <line x1="12" y1="14" x2="22" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="12" y1="19" x2="22" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="12" y1="24" x2="20" y2="24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M30 8 L38 14 L38 36 Q38 38 36 38 L30 38 L30 8" fill="currentColor" opacity="0.3"/>
+            </svg>
+            <div>
+                <strong>TradeTrack</strong>
+                <p>Trading Journal</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Open navigation menu">☰</button>
+            <nav class="site-nav">
+                <a href="#hero">Home</a>
+                <a href="#journal">Journal</a>
+                <a href="#features">Features</a>
+            </nav>
+            <div id="auth" class="auth-links">
+                <button class="nav-btn" onclick="showLogin()">Login</button>
+                <button class="nav-btn accent" onclick="showSignup()">Signup</button>
+            </div>
+            <button class="dark-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">🌙</button>
+        </div>
+    </header>
+
+    <section id="hero" class="hero">
+        <div class="hero-copy">
+            <span class="eyebrow">Trade smarter. Journal faster.</span>
+            <h1>Keep your trades, strategies, and screenshots organized.</h1>
+            <p>Use a clean, responsive trading journal app to log every position, compare results, and improve your process.</p>
+            <div class="hero-actions">
+                <button onclick="document.getElementById('journal').scrollIntoView({ behavior: 'smooth' })">Start journaling</button>
+                <button class="secondary" onclick="showSignup()">Create account</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="feature-grid">
+        <div class="feature-card">
+            <h2>Journal every trade</h2>
+            <p>Save entries for currency pairs, strategy, risk ratios, profit/loss, and duration.</p>
+        </div>
+        <div class="feature-card">
+            <h2>Upload screenshots</h2>
+            <p>Attach trade setups and execution evidence directly to each journal entry.</p>
+        </div>
+        <div class="feature-card">
+            <h2>Track progress</h2>
+            <p>Review your history and learn from winning and losing trades over time.</p>
+        </div>
+    </section>
+
+    <div id="loginForm" class="auth-panel" style="display:none;">
+        <h3>Login</h3>
+        <input type="text" id="loginUser" placeholder="Username">
+        <input type="password" id="loginPass" placeholder="Password">
+        <div class="auth-actions">
+            <button onclick="login()">Login</button>
+            <button class="secondary" onclick="hideLogin()">Cancel</button>
+        </div>
+    </div>
+    <div id="signupForm" class="auth-panel" style="display:none;">
+        <h3>Signup</h3>
+        <input type="text" id="signupUser" placeholder="Username">
+        <input type="password" id="signupPass" placeholder="Password">
+        <div class="auth-actions">
+            <button onclick="signup()">Signup</button>
+            <button class="secondary" onclick="hideSignup()">Cancel</button>
+        </div>
+    </div>
+    <div id="userInfo" class="user-info" style="display:none;">
+        <span id="currentUser"></span>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <main id="journal" class="window">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Currency Traded</th>
+                        <th>Strategy Used</th>
+                        <th>Risk to Reward Ratio</th>
+                        <th>Profit Taken</th>
+                        <th>Loss Taken</th>
+                        <th>Duration of the Trade</th>
+                        <th>Remarks</th>
+                        <th>Screenshot</th>
+                    </tr>
+                </thead>
+                <tbody id="tradeTableBody">
+                    <!-- Add trade entries here -->
+                </tbody>
+            </table>
+        </div>
+        <div class="add-trade">
+            <input type="text" id="currency" placeholder="Currency Traded">
+            <input type="text" id="strategy" placeholder="Strategy Used">
+            <input type="text" id="riskReward" placeholder="Risk to Reward Ratio">
+            <input type="text" id="profit" placeholder="Profit Taken">
+            <input type="text" id="loss" placeholder="Loss Taken">
+            <input type="text" id="duration" placeholder="Duration of the Trade">
+            <input type="text" id="remarksInput" placeholder="Remarks">
+            <input type="file" id="screenshot" accept="image/*">
+            <button onclick="addTrade()">Add Trade</button>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>Built with HTML, CSS & JavaScript. Your private trading journal on the web.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

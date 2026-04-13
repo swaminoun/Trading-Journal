@@ -1,0 +1,226 @@
+async function addTrade() {
+    if (!currentUser) {
+        alert('Please login to add trades.');
+        return;
+    }
+    const currency = document.getElementById('currency').value.trim();
+    const strategy = document.getElementById('strategy').value.trim();
+    const riskReward = document.getElementById('riskReward').value.trim();
+    let profit = document.getElementById('profit').value.trim();
+    let loss = document.getElementById('loss').value.trim();
+    const duration = document.getElementById('duration').value.trim();
+    const remarks = document.getElementById('remarksInput').value.trim();
+    const date = new Date().toLocaleDateString();
+
+    if (!currency || !strategy) {
+        alert('Please fill in Currency Traded and Strategy Used.');
+        return;
+    }
+
+    if (profit && loss) {
+        alert('Please fill in either Profit Taken or Loss Taken, not both.');
+        return;
+    }
+
+    if (!profit && !loss) {
+        alert('Please fill in either Profit Taken or Loss Taken.');
+        return;
+    }
+
+    if (profit) {
+        loss = 'N/A';
+        if (!isNaN(profit)) profit = '$' + parseFloat(profit).toFixed(2);
+    } else if (loss) {
+        profit = 'N/A';
+        if (!isNaN(loss)) loss = '$' + parseFloat(loss).toFixed(2);
+    }
+
+    let screenshot = 'N/A';
+    const screenshotInput = document.getElementById('screenshot');
+    if (screenshotInput.files[0]) {
+        screenshot = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(screenshotInput.files[0]);
+        });
+    }
+
+    const tableBody = document.getElementById('tradeTableBody');
+    const newRow = tableBody.insertRow();
+
+    newRow.insertCell(0).textContent = date;
+    newRow.insertCell(1).textContent = currency;
+    newRow.insertCell(2).textContent = strategy;
+    newRow.insertCell(3).textContent = riskReward || 'N/A';
+    newRow.insertCell(4).textContent = profit;
+    newRow.insertCell(5).textContent = loss;
+    newRow.insertCell(6).textContent = duration || 'N/A';
+    newRow.insertCell(7).textContent = remarks || 'N/A';
+    newRow.insertCell(8).innerHTML = screenshot !== 'N/A' ? '<img src="' + screenshot + '" alt="Screenshot" style="max-width:100px;">' : 'N/A';
+
+    // Save to localStorage
+    saveTrades();
+
+    // Clear inputs
+    document.getElementById('currency').value = '';
+    document.getElementById('strategy').value = '';
+    document.getElementById('riskReward').value = '';
+    document.getElementById('profit').value = '';
+    document.getElementById('loss').value = '';
+    document.getElementById('duration').value = '';
+    document.getElementById('remarksInput').value = '';
+    document.getElementById('screenshot').value = '';
+}
+
+function saveTrades() {
+    const tableBody = document.getElementById('tradeTableBody');
+    const trades = [];
+    for (let i = 0; i < tableBody.rows.length; i++) {
+        const row = tableBody.rows[i];
+        const trade = {
+            date: row.cells[0].textContent,
+            currency: row.cells[1].textContent,
+            strategy: row.cells[2].textContent,
+            riskReward: row.cells[3].textContent,
+            profit: row.cells[4].textContent,
+            loss: row.cells[5].textContent,
+            duration: row.cells[6].textContent,
+            remarks: row.cells[7].textContent,
+            screenshot: row.cells[8].innerHTML
+        };
+        trades.push(trade);
+    }
+    const storageKey = currentUser ? currentUser + '_trades' : 'trades';
+    localStorage.setItem(storageKey, JSON.stringify(trades));
+}
+
+function loadTrades() {
+    const storageKey = currentUser ? currentUser + '_trades' : 'trades';
+    const trades = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    const tableBody = document.getElementById('tradeTableBody');
+    tableBody.innerHTML = '';
+    trades.forEach(trade => {
+        const newRow = tableBody.insertRow();
+        newRow.insertCell(0).textContent = trade.date;
+        newRow.insertCell(1).textContent = trade.currency;
+        newRow.insertCell(2).textContent = trade.strategy;
+        newRow.insertCell(3).textContent = trade.riskReward;
+        newRow.insertCell(4).textContent = trade.profit;
+        newRow.insertCell(5).textContent = trade.loss;
+        newRow.insertCell(6).textContent = trade.duration;
+        newRow.insertCell(7).textContent = trade.remarks;
+        newRow.insertCell(8).innerHTML = trade.screenshot;
+    });
+}
+
+let currentUser = null;
+
+function showLogin() {
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
+}
+
+function hideLogin() {
+    document.getElementById('auth').style.display = 'flex';
+    document.getElementById('loginForm').style.display = 'none';
+}
+
+function showSignup() {
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('signupForm').style.display = 'block';
+}
+
+function hideSignup() {
+    document.getElementById('auth').style.display = 'flex';
+    document.getElementById('signupForm').style.display = 'none';
+}
+
+function signup() {
+    const user = document.getElementById('signupUser').value.trim();
+    const pass = document.getElementById('signupPass').value.trim();
+    if (!user || !pass) {
+        alert('Please fill in username and password.');
+        return;
+    }
+    if (pass.length < 4) {
+        alert('Password must be at least 4 characters.');
+        return;
+    }
+    const users = JSON.parse(localStorage.getItem('users') || '{}');
+    if (users[user]) {
+        alert('User already exists. Try a different username.');
+        return;
+    }
+    users[user] = { password: pass, trades: [] };
+    localStorage.setItem('users', JSON.stringify(users));
+    alert('Account created! Please login with your credentials.');
+    document.getElementById('signupUser').value = '';
+    document.getElementById('signupPass').value = '';
+    hideSignup();
+}
+
+function login() {
+    const user = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPass').value.trim();
+    if (!user || !pass) {
+        alert('Please enter username and password.');
+        return;
+    }
+    const users = JSON.parse(localStorage.getItem('users') || '{}');
+    if (users[user] && users[user].password === pass) {
+        currentUser = user;
+        localStorage.setItem('currentUser', currentUser);
+        document.getElementById('auth').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('currentUser').textContent = 'Logged in as ' + user;
+        document.getElementById('loginUser').value = '';
+        document.getElementById('loginPass').value = '';
+        loadTrades();
+    } else {
+        alert('Invalid username or password.');
+        document.getElementById('loginPass').value = '';
+    }
+}
+
+function logout() {
+    localStorage.removeItem('currentUser');
+    currentUser = null;
+    document.getElementById('auth').style.display = 'flex';
+    document.getElementById('userInfo').style.display = 'none';
+    document.getElementById('tradeTableBody').innerHTML = '';
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const darkModeEnabled = document.body.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', darkModeEnabled);
+}
+
+function initDarkMode() {
+    const darkModeEnabled = localStorage.getItem('darkMode') === 'true';
+    if (darkModeEnabled) {
+        document.body.classList.add('dark-mode');
+    }
+}
+
+function toggleMobileMenu() {
+    const menu = document.querySelector('.site-nav');
+    menu.classList.toggle('is-open');
+}
+
+function initApp() {
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        currentUser = savedUser;
+        document.getElementById('auth').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('currentUser').textContent = 'Logged in as ' + currentUser;
+        loadTrades();
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    initDarkMode();
+    initApp();
+});
