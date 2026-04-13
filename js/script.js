@@ -115,6 +115,7 @@ function loadTrades() {
 
 const GOOGLE_CLIENT_ID = '35954821232-gshj89ir8i795pjojkkgc59g17qdgaf1.apps.googleusercontent.com';
 const GOOGLE_INIT_RETRY_LIMIT = 25;
+const GOOGLE_SCRIPT_SELECTOR = 'script[src="https://accounts.google.com/gsi/client"]';
 
 let googleInitialized = false;
 let googleInitAttempts = 0;
@@ -189,6 +190,10 @@ function setAuthMode(mode) {
             : 'Log in with a browser-saved account, or continue with Google from any browser or device.';
     }
 
+    if (googleInitialized) {
+        renderGoogleButton(authMode);
+    }
+
     if (window.location.pathname.endsWith('auth.html')) {
         const url = new URL(window.location.href);
         if (authMode === 'signup') {
@@ -205,6 +210,63 @@ function setGoogleSigninNote(message) {
     if (note) {
         note.textContent = message;
     }
+}
+
+function getActiveAuthMode() {
+    const signupForm = document.getElementById('signupForm');
+    if (signupForm && signupForm.style.display !== 'none') {
+        return 'signup';
+    }
+    return 'login';
+}
+
+function getGoogleOriginMessage() {
+    if (window.location.protocol === 'file:') {
+        return 'Google sign-in does not work from file://. Start a local server such as http://localhost:8000 or use your HTTPS Vercel URL.';
+    }
+    return 'Add ' + window.location.origin + ' to Authorized JavaScript origins in Google Cloud.';
+}
+
+function updateGoogleOriginValue() {
+    const originValue = document.getElementById('googleOriginValue');
+    if (originValue) {
+        originValue.textContent = window.location.protocol === 'file:'
+            ? 'file:// is not supported for Google sign-in'
+            : window.location.origin;
+    }
+}
+
+function renderGoogleButton(mode) {
+    const buttonContainer = document.getElementById('googleSignInButton');
+    if (!buttonContainer || !window.google || !google.accounts || !google.accounts.id) {
+        return;
+    }
+
+    buttonContainer.innerHTML = '';
+    google.accounts.id.renderButton(buttonContainer, {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        text: mode === 'signup' ? 'signup_with' : 'continue_with',
+        shape: 'rectangular',
+        width: '320'
+    });
+}
+
+function bindGoogleScriptEvents() {
+    const googleScript = document.querySelector(GOOGLE_SCRIPT_SELECTOR);
+    if (!googleScript || googleScript.dataset.bound === 'true') {
+        return;
+    }
+
+    googleScript.dataset.bound = 'true';
+    googleScript.addEventListener('load', () => {
+        googleInitAttempts = 0;
+        initializeGoogleSignIn();
+    });
+    googleScript.addEventListener('error', () => {
+        setGoogleSigninNote('Google sign-in script failed to load. Check your browser blockers or network, then reload the page.');
+    });
 }
 
 function getMissingLocalAccountMessage(identifier) {
@@ -340,6 +402,7 @@ function initializeGoogleSignIn() {
     }
 
     if (googleInitialized) {
+        renderGoogleButton(getActiveAuthMode());
         return;
     }
 
@@ -354,28 +417,23 @@ function initializeGoogleSignIn() {
             setTimeout(initializeGoogleSignIn, 200);
             return;
         }
-        setGoogleSigninNote('Google sign-in could not load. If this is a Vercel deployment, add this exact domain to your Google OAuth Authorized JavaScript origins.');
+        setGoogleSigninNote('Google sign-in could not load. ' + getGoogleOriginMessage());
         return;
     }
 
     try {
-        buttonContainer.innerHTML = '';
         google.accounts.id.initialize({
             client_id: GOOGLE_CLIENT_ID,
             callback: handleGoogleCredentialResponse,
-            ux_mode: 'popup'
+            ux_mode: 'popup',
+            use_fedcm_for_button: true
         });
-        google.accounts.id.renderButton(buttonContainer, {
-            type: 'standard',
-            theme: 'outline',
-            size: 'large',
-            text: 'signin_with',
-            shape: 'rectangular'
-        });
+        renderGoogleButton(getActiveAuthMode());
         googleInitialized = true;
-        setGoogleSigninNote('Use Google to log in or create your account instantly.');
+        setGoogleSigninNote('Use Google to log in or create your account instantly. ' + getGoogleOriginMessage());
     } catch (error) {
-        setGoogleSigninNote('Google sign-in could not start. Check that this exact Vercel URL is allowed in your Google OAuth settings.');
+        console.error('Google sign-in initialization failed:', error);
+        setGoogleSigninNote('Google sign-in could not start. ' + getGoogleOriginMessage());
     }
 }
 
@@ -384,6 +442,12 @@ function initAuthPage() {
         return;
     }
 
+    updateGoogleOriginValue();
+    if (window.location.protocol === 'file:') {
+        setGoogleSigninNote('Google sign-in does not work when this page is opened directly from your files. Start a local server like http://localhost:8000 or use your HTTPS Vercel URL.');
+        return;
+    }
+    bindGoogleScriptEvents();
     const params = new URLSearchParams(window.location.search);
     setAuthMode(params.get('mode') === 'signup' ? 'signup' : 'login');
     initializeGoogleSignIn();

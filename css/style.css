@@ -361,6 +361,18 @@ body {
     font-size: 0.9rem;
 }
 
+.oauth-origin {
+    margin-top: 10px;
+    color: #394866;
+    font-size: 0.88rem;
+    word-break: break-word;
+}
+
+.oauth-origin code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 0.88rem;
+}
+
 .auth-page .site-header,
 .auth-page .auth-panel {
     background: rgba(255,255,255,0.95);
@@ -558,7 +570,8 @@ img {
 .dark-mode .auth-subheading,
 .dark-mode .auth-panel-note,
 .dark-mode .oauth-text,
-.dark-mode .oauth-note {
+.dark-mode .oauth-note,
+.dark-mode .oauth-origin {
     color: rgba(255,255,255,0.8);
 }
 

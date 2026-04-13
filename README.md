@@ -4,8 +4,8 @@ A static trading journal website built with HTML, CSS, and JavaScript.
 
 ## View Locally
 
-1. Open `index.html` in your browser.
-2. Or run a local web server from the project root:
+1. For basic layout checks, you can open `index.html` in your browser.
+2. For Google sign-in, run a local web server from the project root. Google auth does not work from `file://` pages:
    - Python: `python -m http.server 8000`
    - Node: `npx http-server .`
 3. Visit `http://localhost:8000` in your browser.

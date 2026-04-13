@@ -10,7 +10,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="favicon-192.svg">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://accounts.google.com/gsi/client" async></script>
     <title>TradeTrack Auth</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -53,6 +53,7 @@
             <div id="googleSignInButton"></div>
             <p class="oauth-text">Use one Google button for both login and sign up. New Google users will get an account automatically, and Google works across browsers and devices.</p>
             <p id="googleSigninNote" class="oauth-note">If the button does not appear, make sure this exact site URL is allowed in your Google OAuth settings.</p>
+            <p class="oauth-origin">Authorized origin needed: <code id="googleOriginValue"></code></p>
         </div>
         <section id="loginForm" class="auth-panel">
             <h3>Local Login</h3>
