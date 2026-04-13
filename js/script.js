@@ -115,24 +115,37 @@ function loadTrades() {
 
 let currentUser = null;
 
+function goToAuth() {
+    window.location.href = 'auth.html';
+}
+
+function safeStyleToggle(id, displayValue) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.style.display = displayValue;
+    }
+}
+
 function showLogin() {
-    document.getElementById('auth').style.display = 'none';
-    document.getElementById('loginForm').style.display = 'block';
+    safeStyleToggle('auth', 'none');
+    safeStyleToggle('loginForm', 'block');
+    safeStyleToggle('signupForm', 'none');
 }
 
 function hideLogin() {
-    document.getElementById('auth').style.display = 'flex';
-    document.getElementById('loginForm').style.display = 'none';
+    safeStyleToggle('auth', 'flex');
+    safeStyleToggle('loginForm', 'none');
 }
 
 function showSignup() {
-    document.getElementById('auth').style.display = 'none';
-    document.getElementById('signupForm').style.display = 'block';
+    safeStyleToggle('auth', 'none');
+    safeStyleToggle('signupForm', 'block');
+    safeStyleToggle('loginForm', 'none');
 }
 
 function hideSignup() {
-    document.getElementById('auth').style.display = 'flex';
-    document.getElementById('signupForm').style.display = 'none';
+    safeStyleToggle('auth', 'flex');
+    safeStyleToggle('signupForm', 'none');
 }
 
 function signup() {
@@ -170,18 +183,23 @@ function login() {
     if (users[user] && users[user].password === pass) {
         currentUser = user;
         localStorage.setItem('currentUser', currentUser);
-        document.getElementById('auth').style.display = 'none';
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('userInfo').style.display = 'block';
-        document.getElementById('currentUser').textContent = 'Logged in as ' + user;
         document.getElementById('loginUser').value = '';
         document.getElementById('loginPass').value = '';
+        if (window.location.pathname.endsWith('auth.html')) {
+            window.location.href = 'index.html';
+            return;
+        }
+        document.getElementById('auth')?.style && (document.getElementById('auth').style.display = 'none');
+        document.getElementById('loginForm')?.style && (document.getElementById('loginForm').style.display = 'none');
+        document.getElementById('userInfo')?.style && (document.getElementById('userInfo').style.display = 'block');
+        document.getElementById('currentUser')?.textContent && (document.getElementById('currentUser').textContent = 'Logged in as ' + user);
         loadTrades();
     } else {
         alert('Invalid username or password.');
         document.getElementById('loginPass').value = '';
     }
 }
+
 
 function logout() {
     localStorage.removeItem('currentUser');

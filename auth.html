@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login or signup to access your trading journal.">
+    <meta name="theme-color" content="#667eea">
+    <title>TradeTrack Auth</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+    <header class="site-header">
+        <div class="brand">
+            <svg class="brand-logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="6" width="24" height="32" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M18 10 L18 30" stroke="currentColor" stroke-width="2"/>
+                <line x1="12" y1="14" x2="22" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="12" y1="19" x2="22" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="12" y1="24" x2="20" y2="24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M30 8 L38 14 L38 36 Q38 38 36 38 L30 38 L30 8" fill="currentColor" opacity="0.3"/>
+            </svg>
+            <div>
+                <strong>TradeTrack</strong>
+                <p>Authentication</p>
+            </div>
+        </div>
+        <nav class="site-nav auth-nav">
+            <a href="index.html">Home</a>
+            <a href="index.html#journal">Journal</a>
+        </nav>
+    </header>
+
+    <main class="auth-window">
+        <section id="loginForm" class="auth-panel">
+            <h3>Login</h3>
+            <input type="text" id="loginUser" placeholder="Username">
+            <input type="password" id="loginPass" placeholder="Password">
+            <div class="auth-actions">
+                <button onclick="login()">Login</button>
+                <button class="secondary" onclick="window.location.href='index.html'">Cancel</button>
+            </div>
+            <p class="auth-switch">Need an account? <a href="#" onclick="showSignup(); return false;">Create account</a></p>
+        </section>
+        <section id="signupForm" class="auth-panel" style="display:none;">
+            <h3>Signup</h3>
+            <input type="text" id="signupUser" placeholder="Username">
+            <input type="password" id="signupPass" placeholder="Password">
+            <div class="auth-actions">
+                <button onclick="signup()">Signup</button>
+                <button class="secondary" onclick="window.location.href='index.html'">Cancel</button>
+            </div>
+            <p class="auth-switch">Already have an account? <a href="#" onclick="showLogin(); return false;">Login</a></p>
+        </section>
+    </main>
+
+    <footer class="site-footer auth-footer">
+        <p>Login or signup to manage your trading journal securely.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
