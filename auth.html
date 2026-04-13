@@ -40,6 +40,7 @@
         <div class="google-signin-box">
             <div id="googleSignInButton"></div>
             <p class="oauth-text">Use your Google account to sign in without creating a new login.</p>
+            <p id="googleSigninNote" class="oauth-note">If the button does not appear, please use the site from a local server or your deployed URL.</p>
         </div>
         <section id="loginForm" class="auth-panel">
             <h3>Login</h3>
@@ -68,5 +69,23 @@
     </footer>
 
     <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const googleScript = document.querySelector('script[src*="accounts.google.com/gsi/client"]');
+            if (googleScript) {
+                googleScript.onload = () => {
+                    if (typeof initializeGoogleSignIn === 'function') {
+                        initializeGoogleSignIn();
+                    }
+                };
+            }
+            setTimeout(() => {
+                const note = document.getElementById('googleSigninNote');
+                if (note && (!window.google || !google.accounts || !google.accounts.id)) {
+                    note.textContent = 'Google sign-in may require a local server or a live HTTPS site to appear.';
+                }
+            }, 3000);
+        });
+    </script>
 </body>
 </html>
