@@ -1,0 +1,21 @@
+{
+  "name": "TradeTrack",
+  "short_name": "TradeTrack",
+  "description": "A trading journal web app to track trades, screenshots, and notes.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "favicon-192.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192"
+    },
+    {
+      "src": "favicon-512.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ]
+}
